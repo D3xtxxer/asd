@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#17111f">
+<title>DANCE-OFF — The Charades Showdown</title>
+<style>
+@import url(''); /* Intentionally no external assets or dependencies. */
+:root{
+  --ink:#17111f;--panel:#21182b;--panel2:#2b2036;--line:#493650;
+  --white:#fff9f4;--muted:#c7b8ce;--pink:#ff3eaa;--purple:#8d5bff;
+  --orange:#ff873d;--yellow:#ffd45c;--green:#35d69a;--red:#ff536b;
+}
+*{box-sizing:border-box}
+html{min-height:100%;background:var(--ink)}
+body{margin:0;min-height:100vh;color:var(--white);font-family:Arial,Helvetica,sans-serif;
+ background:radial-gradient(ellipse at 50% -20%,#51234f 0,transparent 52%),var(--ink)}
+button,input{font:inherit}
+button{cursor:pointer;border:0;color:inherit;font-weight:900;transition:transform .16s,filter .16s,background .16s}
+button:hover:not(:disabled){filter:brightness(1.12);transform:translateY(-2px)}
+button:active:not(:disabled){transform:translateY(1px) scale(.99)}
+button:disabled{opacity:.42;cursor:not-allowed}
+.shell{width:min(1180px,calc(100% - 36px));margin:auto;padding:22px 0 42px}
+.masthead{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:10px;font-size:13px;font-weight:1000;letter-spacing:2px}
+.brand-mark{display:grid;place-items:center;width:36px;height:36px;background:var(--yellow);color:#211626;clip-path:polygon(50% 0,61% 35%,100% 20%,73% 53%,100% 84%,60% 69%,50% 100%,39% 69%,0 84%,27% 53%,0 20%,39% 35%)}
+.top-actions{display:flex;gap:8px;flex-wrap:wrap}
+.top-btn{background:#30243a;border:1px solid #61456c;padding:10px 13px;border-radius:9px;font-size:12px}
+.eyebrow{color:var(--yellow);font-size:12px;font-weight:1000;letter-spacing:3px;text-transform:uppercase}
+.hero{padding:24px 0 17px}
+h1{font-size:clamp(42px,7.6vw,88px);line-height:.88;letter-spacing:-4px;margin:12px 0 13px;font-weight:1000;text-transform:uppercase}
+h1 .pink{color:var(--pink)}h1 .outline{color:transparent;-webkit-text-stroke:1.5px var(--white)}
+.tagline{color:var(--muted);font-size:clamp(14px,1.6vw,17px);max-width:670px;line-height:1.55;margin:0}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:15px;padding:clamp(17px,2.5vw,26px);margin-top:18px}
+.panel-head{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:16px}
+.panel h2{font-size:22px;margin:0}
+.kicker{font-size:11px;letter-spacing:2px;color:var(--muted);font-weight:900}
+.setup-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.field label{display:block;color:var(--muted);font-size:11px;font-weight:900;letter-spacing:1.4px;margin:0 0 7px;text-transform:uppercase}
+.field input{width:100%;border:1px solid #63496b;background:#160f1d;color:white;padding:13px 14px;border-radius:8px;font-size:17px;font-weight:700;outline:none}
+.field input:focus{border-color:var(--pink);box-shadow:0 0 0 3px #ff3eaa20}
+.settings-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px}
+.help{color:var(--muted);font-size:13px;line-height:1.55;margin:16px 0 0}
+.primary{background:var(--pink);padding:15px 22px;border-radius:8px;color:white;letter-spacing:.5px}
+.yellow{background:var(--yellow);color:#231728;padding:14px 20px;border-radius:8px}
+.secondary{background:#382b43;border:1px solid #674d70;padding:12px 16px;border-radius:8px}
+.danger{background:#672d43;padding:12px 16px;border-radius:8px}
+.start-row{display:flex;justify-content:flex-end;margin-top:18px}
+.scoreboard{display:grid;grid-template-columns:1fr auto 1fr;align-items:stretch;gap:12px}
+.team-card{background:#17111f;border:1px solid #48344f;padding:15px 18px;border-radius:11px;position:relative;overflow:hidden;min-width:0}
+.team-card.active{border:2px solid var(--pink);background:#29182d}
+.team-card.active:after{content:"YOUR TURN";position:absolute;right:12px;top:12px;color:var(--yellow);font-size:10px;font-weight:1000;letter-spacing:1.3px}
+.team-name{font-size:clamp(13px,2vw,17px);font-weight:1000;letter-spacing:.5px;overflow-wrap:anywhere;padding-right:62px}
+.score{font-size:clamp(38px,5vw,58px);font-weight:1000;line-height:1;margin-top:9px;font-variant-numeric:tabular-nums}
+.score-caption{font-size:10px;letter-spacing:2px;color:var(--muted);font-weight:900;margin-top:5px}
+.versus{align-self:center;color:var(--orange);font-weight:1000;font-size:14px;font-style:italic}
+.turn-strip{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin:20px 0 12px}
+.turn-title{font-size:clamp(22px,3vw,31px);font-weight:1000;margin:4px 0 0}
+.round-label{color:var(--yellow);font-size:11px;letter-spacing:2px;font-weight:1000}
+.timer-wrap{text-align:right}
+.timer-label{font-size:10px;letter-spacing:2px;color:var(--muted);font-weight:900}
+.timer{font-size:clamp(42px,6vw,64px);font-weight:1000;color:var(--yellow);font-variant-numeric:tabular-nums;line-height:1}
+.timer.urgent{color:var(--red);animation:pulse .65s infinite alternate}
+@keyframes pulse{to{transform:scale(1.07)}}
+.track{height:8px;background:#493650;border-radius:20px;overflow:hidden;margin:10px 0 20px}
+.track-fill{height:100%;width:100%;background:linear-gradient(90deg,var(--purple),var(--pink),var(--orange));transition:width .25s linear}
+.instructions{color:var(--muted);font-size:13px;line-height:1.5;margin:0 0 13px}
+.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.mystery-card{min-height:130px;text-align:left;padding:17px;border-radius:10px;border:1px solid #63456e;background:#30233b;position:relative;overflow:hidden}
+.mystery-card:before{content:"";position:absolute;width:90px;height:90px;border:15px solid #ffffff0a;border-radius:50%;right:-25px;bottom:-40px}
+.mystery-card .number{font-size:10px;letter-spacing:2px;color:#d9c8e3;font-weight:900}
+.mystery-card .pts{display:block;font-size:30px;font-weight:1000;margin:12px 0 2px;color:var(--yellow)}
+
+.stage{display:grid;grid-template-columns:1.1fr .9fr;gap:15px}
+.prompt-box{background:#160f1d;border:1px solid #64466e;border-radius:12px;padding:20px;text-align:center;min-height:230px;display:flex;flex-direction:column;justify-content:center}
+.prompt-label{font-size:10px;letter-spacing:2px;color:var(--muted);font-weight:1000}
+.prompt-word{font-size:clamp(34px,5vw,58px);font-weight:1000;line-height:1.05;color:var(--pink);margin:16px 0;overflow-wrap:anywhere}
+.prompt-word.blurred{filter:blur(13px);user-select:none}
+.category-tag{align-self:center;border:1px solid #77517e;padding:7px 12px;border-radius:99px;color:#e8d8ef;font-size:11px;font-weight:900;letter-spacing:1px}
+.hint-panel{background:#30233b;border-left:5px solid var(--orange);border-radius:10px;padding:20px;display:flex;flex-direction:column;justify-content:center}
+.hint-title{font-size:11px;letter-spacing:2px;color:var(--yellow);font-weight:1000}
+.hint-text{font-size:clamp(25px,3.6vw,40px);line-height:1.12;font-weight:1000;margin-top:12px}
+.rep-line{color:var(--muted);font-size:12px;font-weight:900;margin-bottom:12px;letter-spacing:.8px}
+.action-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:15px}
+.choice-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:16px}
+.answer-btn{min-height:74px;border-radius:10px;padding:15px 17px;text-align:left;background:#352640;border:1px solid #76517f;display:flex;align-items:center;gap:13px;font-size:clamp(17px,2vw,22px);line-height:1.15}
+.answer-btn:nth-child(5){grid-column:1/-1}
+.answer-key{display:grid;place-items:center;flex:0 0 35px;height:35px;border-radius:7px;background:var(--purple);font-size:15px}
+.answer-btn.correct-reveal{border:2px solid var(--green);background:#164a3b}
+.answer-btn.wrong-pick{border:2px solid var(--red);background:#542535}
+.answer-btn:disabled{opacity:1;cursor:default;transform:none}
+.notice{padding:13px 15px;border-radius:9px;background:#382b43;color:var(--muted);font-size:13px;line-height:1.5;margin-top:13px}
+.result-panel{text-align:center;padding:26px 12px}
+.result-mark{font-size:58px}
+.result-heading{font-size:clamp(32px,6vw,58px);font-weight:1000;margin:7px 0}
+.result-heading.good{color:var(--green)}.result-heading.bad{color:var(--red)}.result-heading.timeout{color:var(--yellow)}
+.result-answer{font-size:clamp(23px,3vw,32px);font-weight:1000;margin:12px 0}
+.result-copy{color:var(--muted);font-size:16px;line-height:1.5}
+.points-earned{display:inline-block;background:#174a39;color:#8dffd0;padding:10px 17px;border-radius:7px;font-weight:1000;font-size:22px;margin:10px}
+.bottom-actions{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-top:22px}
+.hidden{display:none!important}
+.modal-backdrop{position:fixed;inset:0;z-index:30;background:#09060de8;display:grid;place-items:center;padding:18px}
+.modal{width:min(560px,100%);background:#241a2d;border:3px solid var(--green);border-radius:16px;padding:30px 22px;text-align:center;animation:pop .22s ease-out;position:relative;overflow:hidden}
+.modal.bad{border-color:var(--red)}.modal.timeout{border-color:var(--yellow)}
+.modal-icon{font-size:64px;line-height:1}
+.modal-title{font-size:clamp(38px,7vw,64px);font-weight:1000;margin:12px 0 5px;letter-spacing:-2px}
+.modal-title.good{color:var(--green)}.modal-title.bad{color:var(--red)}.modal-title.timeout{color:var(--yellow)}
+.modal-copy{color:var(--muted);font-size:17px;line-height:1.45;margin:8px 0 20px}
+.modal .primary{min-width:180px}
+@keyframes pop{from{opacity:0;transform:scale(.82)}to{opacity:1;transform:scale(1)}}
+.confetti{position:fixed;z-index:40;top:-15px;width:10px;height:17px;pointer-events:none;animation:fall linear forwards}
+@keyframes fall{to{transform:translateY(110vh) rotate(780deg);opacity:.9}}
+.winner-box{text-align:center;padding:28px 10px}
+.winner-cup{font-size:72px}
+.winner-title{font-size:clamp(35px,7vw,66px);font-weight:1000;color:var(--yellow);line-height:1;margin:12px 0}
+.final-score{font-size:19px;color:var(--muted);line-height:1.7;margin:18px 0 24px}
+.footer{text-align:center;color:#8f7d98;font-size:11px;letter-spacing:1px;margin-top:23px}
+@media(max-width:760px){
+ .stage{grid-template-columns:1fr}.cards{grid-template-columns:repeat(2,1fr)}
+ .mystery-card{min-height:115px}.scoreboard{gap:7px}.team-card{padding:12px}
+}
+@media(max-width:480px){
+ .shell{width:calc(100% - 22px);padding-top:13px}
+ h1{letter-spacing:-2px}.setup-grid,.settings-row{grid-template-columns:1fr}
+ .cards{gap:8px}.mystery-card{padding:13px}.choice-grid{grid-template-columns:1fr}
+ .answer-btn:nth-child(5){grid-column:auto}.team-card.active:after{position:static;display:block;margin-top:5px}
+ .team-name{padding-right:0}.score{font-size:36px}
+}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+</style>
+</head>
+<body>
+<main class="shell">
+  <header class="masthead">
+    <div class="brand"><span class="brand-mark">✦</span><span>THE CLASSROOM DANCE LEAGUE</span></div>
+    <div class="top-actions">
+      <button class="top-btn" id="soundBtn" type="button" aria-pressed="true">♫ SOUND: ON</button>
+      <button class="top-btn" id="fullBtn" type="button">⛶ FULLSCREEN</button>
+    </div>
+  </header>
+
+  <section class="hero">
+    <div class="eyebrow">One stage. Two teams. Big energy.</div>
+    <h1>DANCE-<span class="pink">OFF</span><br><span class="outline">CHARADES</span></h1>
+    <p class="tagline">Act the move. Read the hint. Beat the clock. Your team has one shot to choose the right answer!</p>
+  </section>
+
+  <section class="panel" id="setup">
+    <div class="panel-head"><h2>SET UP THE SHOW</h2><span class="kicker">BEFORE THE MUSIC STARTS</span></div>
+    <div class="setup-grid">
+      <div class="field"><label for="teamA">Team one name</label><input id="teamA" maxlength="22" value="TEAM PINK"></div>
+      <div class="field"><label for="teamB">Team two name</label><input id="teamB" maxlength="22" value="TEAM PURPLE"></div>
+    </div>
+    <div class="settings-row">
+      <div class="field"><label for="reps">Representatives per turn (1–3)</label><input id="reps" type="number" min="1" max="3" value="1"></div>
+      <div class="field"><label for="seconds">Timer duration (seconds)</label><input id="seconds" type="number" min="10" max="180" value="45"></div>
+    </div>
+    <p class="help">Each turn shows six mystery cards. The team chooses one card, then the representative previews the secret prompt. When the timer starts, the prompt blurs and five answer choices appear for the team.</p>
+    <div class="start-row"><button class="primary" id="startGameBtn" type="button">START THE SHOW&nbsp; →</button></div>
+  </section>
+
+  <section class="panel hidden" id="game">
+    <div class="scoreboard">
+      <div class="team-card" id="teamBox0"><div class="team-name" id="name0">TEAM PINK</div><div class="score" id="score0">0</div><div class="score-caption">POINTS</div></div>
+      <div class="versus">VS</div>
+      <div class="team-card" id="teamBox1"><div class="team-name" id="name1">TEAM PURPLE</div><div class="score" id="score1">0</div><div class="score-caption">POINTS</div></div>
+    </div>
+    <div class="turn-strip">
+      <div><div class="round-label" id="roundLabel">ROUND 1 · TEAM 1</div><div class="turn-title" id="turnTitle">TEAM PINK'S TURN</div></div>
+      <div class="timer-wrap"><div class="timer-label">TIME LEFT</div><div class="timer" id="timer">45</div></div>
+    </div>
+    <div class="track"><div class="track-fill" id="progressBar"></div></div>
+
+    <div id="pickArea">
+      <div class="panel-head"><h2>CHOOSE YOUR MYSTERY CARD</h2><span class="kicker">6 CARDS · 1 PICK</span></div>
+      <p class="instructions">Pick a card. Once chosen, that card is removed for the rest of the game.</p>
+      <div class="cards" id="cards"></div>
+    </div>
+
+    <div id="actArea" class="hidden">
+      <div class="rep-line" id="repLabel">REPRESENTATIVE(S): 1 PERSON</div>
+      <div class="stage">
+        <div class="prompt-box">
+          <div class="prompt-label" id="promptLabel">REPRESENTATIVE ONLY · SECRET PROMPT</div>
+          <div class="prompt-word" id="prompt">WALTZ</div>
+          <div class="category-tag" id="category">DANCESPORT</div>
+        </div>
+        <div class="hint-panel">
+          <div class="hint-title">★ YOUR BIG HINT</div>
+          <div class="hint-text" id="hint">Show smooth, gliding steps with an imaginary partner.</div>
+        </div>
+      </div>
+      <div class="action-row" id="preStartActions">
+        <button class="yellow" id="startTimerBtn" type="button">▶ START TIMER</button>
+        <button class="secondary" id="hidePromptBtn" type="button">HIDE PROMPT</button>
+      </div>
+      <div id="answerArea" class="hidden">
+        <div class="panel-head" style="margin:18px 0 0"><h2>LOCK IN YOUR ANSWER!</h2><span class="kicker">CHOOSE ONE</span></div>
+        <p class="instructions">The team can answer at any time before the countdown ends. One answer only!</p>
+        <div class="choice-grid" id="answers"></div>
+        <div class="notice" id="answerNotice">The representative acts silently. Teammates: discuss quickly, then tap one answer.</div>
+      </div>
+    </div>
+
+    <div id="resultArea" class="hidden">
+      <div class="result-panel">
+        <div class="result-mark" id="resultMark">🎉</div>
+        <div class="result-heading good" id="resultTitle">NAILED IT!</div>
+        <div class="result-copy" id="resultMessage">Your team got it!</div>
+        <div class="result-answer" id="answerWord">WALTZ</div>
+        <div class="points-earned hidden" id="pointsEarned">+20 POINTS</div>
+      </div>
+    </div>
+
+    <div class="bottom-actions">
+      <button class="danger" id="endGameBtn" type="button">END GAME</button>
+      <button class="yellow hidden" id="nextBtn" type="button">NEXT TURN&nbsp; →</button>
+    </div>
+  </section>
+
+  <section class="panel hidden" id="finish">
+    <div class="winner-box">
+      <div class="winner-cup" id="winnerCup">🏆</div>
+      <div class="eyebrow">FINAL SCORE · THE SHOW IS OVER</div>
+      <div class="winner-title" id="winner">TEAM PINK WINS!</div>
+      <div class="final-score" id="finalScores"></div>
+      <button class="primary" id="playAgainBtn" type="button">PLAY AGAIN ↻</button>
+    </div>
+  </section>
+  <footer class="footer">DANCE-OFF · CLASSROOM EDITION · PLAY FAIR & HAVE FUN</footer>
+</main>
+
+<div class="modal-backdrop hidden" id="resultModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+  <div class="modal" id="modalCard">
+    <div class="modal-icon" id="modalIcon">🎉</div>
+    <div class="modal-title good" id="modalTitle">CORRECT!</div>
+    <p class="modal-copy" id="modalText">You got it right!</p>
+    <button class="primary" id="modalContinue" type="button">LET'S GO</button>
+  </div>
+</div>
+
+<script>
+"use strict";
+const deck = [
+ {w:"Cheerleading",p:30,d:"Easy",c:"Cheer Dance",h:"Lead an imaginary crowd with energetic arm motions and a big team smile."},
+ {w:"Cheer Dance Routine",p:30,d:"Easy",c:"Cheer Dance",h:"Perform a short sequence of sharp, synchronized team movements."},
+ {w:"Pompoms",p:30,d:"Easy",c:"Cheer Dance",h:"Pretend to shake two fluffy accessories in both hands."},
+ {w:"Breaking",p:30,d:"Moderate",c:"Street Dance",h:"Show a street-dance attitude using safe standing poses and rhythmic arm moves."},
+ {w:"Popping",p:30,d:"Moderate",c:"Street Dance",h:"Make quick, controlled muscle contractions that look like small body pops."},
+ {w:"Locking",p:30,d:"Moderate",c:"Street Dance",h:"Move, suddenly freeze in a pose, then continue dancing."},
+ {w:"Foxtrot",p:30,d:"Challenging",c:"Dancesport",h:"Glide smoothly with a partner using a slow-slow-quick-quick rhythm."},
+ {w:"Waltz",p:30,d:"Challenging",c:"Dancesport",h:"Show a graceful partner dance with a flowing one-two-three rhythm."},
+ {w:"Samba",p:30,d:"Challenging",c:"Dancesport",h:"Show a lively, bouncy dance with a playful carnival feeling."},
+ {w:"Jive",p:30,d:"Hard",c:"Dancesport",h:"Show a cheerful partner dance with quick kicks and lively bouncing steps."},
+ {w:"Viennese Waltz",p:30,d:"Hard",c:"Dancesport",h:"Imagine turning smoothly around the floor in a fast, flowing ballroom dance."},
+ {w:"Cheer Motion",p:30,d:"Hard",c:"Cheer Dance",h:"Make strong, clean arm shapes such as a high V and a T position."},
+ {w:"Dance Formation",p:30,d:"Expert",c:"Cheer Dance",h:"Show a group changing from one organized stage arrangement to another."},
+ {w:"Dance Battle",p:30,d:"Expert",c:"Street Dance",h:"Challenge an imaginary opponent with alternating freestyle moves and confident poses."},
+ {w:"Dance Partner",p:30,d:"Expert",c:"Dancesport",h:"Act out coordinating steps and direction with another dancer."}
+];
+const $ = id => document.getElementById(id);
+let names=["TEAM PINK","TEAM PURPLE"],scores=[0,0],team=0,round=1,seconds=45,left=45;
+let representatives=1,current=null,clock=null,used=[],phase="setup",soundOn=true,answered=false,modalTimer=null;
+let audioContext=null;
+
+function shuffle(arr){
+ const a=[...arr];
+ for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}
+ return a;
+}
+function startGame(){
+ names=[$("teamA").value.trim()||"TEAM ONE",$("teamB").value.trim()||"TEAM TWO"];
+ representatives=Math.max(1,Math.min(3,parseInt($("reps").value,10)||1));
+ seconds=Math.max(10,Math.min(180,parseInt($("seconds").value,10)||45));
+ $("reps").value=representatives;$("seconds").value=seconds;
+ scores=[0,0];team=0;round=1;used=[];current=null;phase="pick";
+ $("setup").classList.add("hidden");$("finish").classList.add("hidden");$("game").classList.remove("hidden");
+ $("name0").textContent=names[0];$("name1").textContent=names[1];
+ updateScore();renderTurn();
+}
+function updateScore(){
+ for(let i=0;i<2;i++)$("score"+i).textContent=scores[i];
+ $("teamBox0").classList.toggle("active",team===0);
+ $("teamBox1").classList.toggle("active",team===1);
+}
+function renderTurn(){
+ stopClock();left=seconds;phase="pick";answered=false;current=null;
+ $("timer").textContent=left;$("timer").classList.remove("urgent");
+ $("progressBar").style.width="100%";
+ $("roundLabel").textContent="ROUND "+round+" · TEAM "+(team+1);
+ $("turnTitle").textContent=names[team]+"'S TURN";
+ $("pickArea").classList.remove("hidden");$("actArea").classList.add("hidden");
+ $("resultArea").classList.add("hidden");$("nextBtn").classList.add("hidden");
+ const available=deck.filter(card=>!used.includes(card.w));
+ if(available.length===0){finishGame();return;}
+ // Chosen cards stay out of the deck for the rest of this game.
+ // Near the end, show the remaining cards instead of recycling used ones.
+ const cards=shuffle(available).slice(0,6);
+ $("cards").replaceChildren();
+ cards.forEach((card,index)=>{
+  const b=document.createElement("button");
+  b.type="button";b.className="mystery-card";
+  const n=document.createElement("span");n.className="number";n.textContent="MYSTERY CARD 0"+(index+1);
+  const pts=document.createElement("span");pts.className="pts";pts.textContent=card.p+" PTS";
+  b.append(n,pts);b.addEventListener("click",()=>chooseCard(card));$("cards").appendChild(b);
+ });
+ updateScore();
+}
+function chooseCard(card){
+ if(phase!=="pick")return;
+ current=card;used.push(card.w);phase="preview";
+ $("pickArea").classList.add("hidden");$("actArea").classList.remove("hidden");
+ $("prompt").textContent=card.w;$("prompt").classList.remove("blurred");
+ $("promptLabel").textContent="REPRESENTATIVE ONLY · SECRET PROMPT";
+ $("category").textContent=card.c.toUpperCase();$("hint").textContent=card.h;
+ $("repLabel").textContent="REPRESENTATIVE(S): "+representatives+" "+(representatives===1?"PERSON":"PEOPLE");
+ $("startTimerBtn").disabled=false;$("hidePromptBtn").disabled=false;
+ $("preStartActions").classList.remove("hidden");$("answerArea").classList.add("hidden");
+ $("answers").replaceChildren();$("timer").textContent=seconds;$("timer").classList.remove("urgent");
+}
+function hidePrompt(){
+ if(phase!=="preview")return;
+ $("prompt").classList.add("blurred");
+ $("promptLabel").textContent="SECRET PROMPT HIDDEN";
+ $("hidePromptBtn").disabled=true;
+}
+function buildAnswers(){
+ const distractors=shuffle(deck.filter(card=>card.w!==current.w)).slice(0,4);
+ const choices=shuffle([current,...distractors]);
+ $("answers").replaceChildren();
+ choices.forEach((card,index)=>{
+  const b=document.createElement("button");b.type="button";b.className="answer-btn";
+  const key=document.createElement("span");key.className="answer-key";key.textContent=String.fromCharCode(65+index);
+  const label=document.createElement("span");label.textContent=card.w;
+  b.append(key,label);b.addEventListener("click",()=>selectAnswer(card.w===current.w,b));
+  $("answers").appendChild(b);
+ });
+}
+function startTimer(){
+ if(phase!=="preview"||!current)return;
+ phase="playing";answered=false;
+ $("prompt").classList.add("blurred");$("promptLabel").textContent="SECRET PROMPT · HIDDEN";
+ $("preStartActions").classList.add("hidden");$("answerArea").classList.remove("hidden");
+ buildAnswers();left=seconds;updateTimerDisplay();playSound("start");
+ clock=setInterval(()=>{
+  if(phase!=="playing")return;
+  left=Math.max(0,left-1);updateTimerDisplay();
+  if(left<=0)resolveTurn("timeout");
+ },1000);
+}
+function updateTimerDisplay(){
+ $("timer").textContent=left;
+ $("timer").classList.toggle("urgent",left<=10);
+ $("progressBar").style.width=(left/seconds*100)+"%";
+}
+function selectAnswer(isCorrect,button){
+ if(phase!=="playing"||answered)return;
+ answered=true;
+ [...$("answers").children].forEach(b=>b.disabled=true);
+ if(isCorrect)button.classList.add("correct-reveal");else button.classList.add("wrong-pick");
+ resolveTurn(isCorrect?"correct":"wrong");
+}
+function resolveTurn(result){
+ if(phase!=="playing"&&phase!=="preview")return;
+ stopClock();phase="result";answered=true;
+ $("actArea").classList.add("hidden");$("resultArea").classList.remove("hidden");
+ $("answerWord").textContent="CORRECT ANSWER: "+current.w;
+ $("pointsEarned").classList.add("hidden");
+ let title,copy,kind,mark,modalTitle,modalCopy;
+ if(result==="correct"){
+  scores[team]+=current.p;updateScore();
+  title="NAILED IT!";copy=names[team]+" locked in the right answer.";kind="good";mark="🏆";
+  $("pointsEarned").textContent="+"+current.p+" POINTS";$("pointsEarned").classList.remove("hidden");
+  modalTitle="CORRECT!";modalCopy=names[team]+" earned "+current.p+" points!";
+  playSound("win");confetti();
+ }else if(result==="timeout"){
+  title="TIME'S UP!";copy="The countdown hit zero. No points this turn.";kind="timeout";mark="⏰";
+  modalTitle="TIME'S UP!";modalCopy="The correct answer was "+current.w+". No points awarded.";
+  playSound("buzzer");
+ }else{
+  title="WRONG ANSWER!";copy="Not quite. No points awarded this turn.";kind="bad";mark="✕";
+  modalTitle="NOT QUITE!";modalCopy="The correct answer was "+current.w+". No points awarded.";
+  playSound("buzzer");
+ }
+ $("resultMark").textContent=mark;$("resultTitle").textContent=title;
+ $("resultTitle").className="result-heading "+kind;$("resultMessage").textContent=copy;
+ showModal(kind,modalTitle,modalCopy);
+ $("nextBtn").classList.remove("hidden");
+}
+function showModal(kind,title,copy){
+ $("modalCard").className="modal "+(kind==="good"?"":kind);
+ $("modalIcon").textContent=kind==="good"?"🎉":kind==="timeout"?"⏰":"✖️";
+ $("modalTitle").textContent=title;$("modalTitle").className="modal-title "+kind;
+ $("modalText").textContent=copy;$("resultModal").classList.remove("hidden");
+}
+function closeModal(){
+ $("resultModal").classList.add("hidden");
+ if(modalTimer){clearTimeout(modalTimer);modalTimer=null;}
+}
+function nextTurn(){
+ if(phase!=="result")return;
+ closeModal();team=1-team;if(team===0)round++;
+ if(used.length>=deck.length)finishGame();else renderTurn();
+}
+function stopClock(){if(clock){clearInterval(clock);clock=null;}}
+function endGame(){
+ stopClock();closeModal();phase="finish";
+ $("game").classList.add("hidden");$("setup").classList.add("hidden");$("finish").classList.remove("hidden");
+ const winner=scores[0]===scores[1]?"IT'S A TIE!":scores[0]>scores[1]?names[0]+" WINS!":names[1]+" WINS!";
+ $("winner").textContent=winner;$("winnerCup").textContent=scores[0]===scores[1]?"🤝":"🏆";
+ $("finalScores").textContent=names[0]+": "+scores[0]+" points     •     "+names[1]+": "+scores[1]+" points";
+ if(scores[0]!==scores[1]){playSound("win");confetti();}
+}
+function finishGame(){endGame();}
+function resetGame(){
+ stopClock();closeModal();phase="setup";scores=[0,0];team=0;round=1;used=[];current=null;
+ $("game").classList.add("hidden");$("finish").classList.add("hidden");$("setup").classList.remove("hidden");
+ $("timer").classList.remove("urgent");
+}
+function getAudio(){
+ if(!audioContext){const AC=window.AudioContext||window.webkitAudioContext;if(AC)audioContext=new AC();}
+ if(audioContext&&audioContext.state==="suspended")audioContext.resume();
+ return audioContext;
+}
+function tone(freq,start,duration,type="sine",gain=.12){
+ const ctx=getAudio();if(!ctx||!soundOn)return;
+ const osc=ctx.createOscillator(),vol=ctx.createGain();
+ osc.type=type;osc.frequency.setValueAtTime(freq,ctx.currentTime+start);
+ vol.gain.setValueAtTime(.0001,ctx.currentTime+start);
+ vol.gain.exponentialRampToValueAtTime(gain,ctx.currentTime+start+.015);
+ vol.gain.exponentialRampToValueAtTime(.0001,ctx.currentTime+start+duration);
+ osc.connect(vol);vol.connect(ctx.destination);osc.start(ctx.currentTime+start);osc.stop(ctx.currentTime+start+duration+.03);
+}
+function playSound(type){
+ if(!soundOn)return;
+ if(type==="win"){tone(523,0,.16,"triangle");tone(659,.14,.18,"triangle");tone(784,.3,.2,"triangle");tone(1046,.48,.35,"triangle",.14);}
+ else if(type==="buzzer"){tone(170,0,.38,"sawtooth",.17);tone(125,.25,.4,"square",.12);}
+ else if(type==="start"){tone(440,0,.09,"square",.07);tone(660,.12,.12,"square",.08);}
+}
+function confetti(){
+ const colors=["#ff3eaa","#8d5bff","#ff873d","#ffd45c","#35d69a","#ffffff"];
+ for(let i=0;i<85;i++){
+  const piece=document.createElement("i");piece.className="confetti";
+  piece.style.left=Math.random()*100+"vw";piece.style.background=colors[i%colors.length];
+  piece.style.animationDuration=(2.1+Math.random()*2.2)+"s";
+  piece.style.animationDelay=(Math.random()*.45)+"s";
+  piece.style.transform="rotate("+Math.random()*360+"deg)";
+  document.body.appendChild(piece);setTimeout(()=>piece.remove(),5000);
+ }
+}
+async function toggleFullscreen(){
+ try{
+  if(!document.fullscreenElement)await document.documentElement.requestFullscreen();
+  else await document.exitFullscreen();
+ }catch(e){/* Fullscreen may be blocked by the browser; the game remains playable. */}
+ $("fullBtn").textContent=document.fullscreenElement?"⛶ EXIT FULLSCREEN":"⛶ FULLSCREEN";
+}
+function toggleSound(){
+ soundOn=!soundOn;$("soundBtn").textContent=soundOn?"♫ SOUND: ON":"♫ SOUND: OFF";
+ $("soundBtn").setAttribute("aria-pressed",String(soundOn));
+ if(soundOn)playSound("start");
+}
+$("startGameBtn").addEventListener("click",startGame);
+$("startTimerBtn").addEventListener("click",startTimer);
+$("hidePromptBtn").addEventListener("click",hidePrompt);
+$("nextBtn").addEventListener("click",nextTurn);
+$("endGameBtn").addEventListener("click",endGame);
+$("modalContinue").addEventListener("click",closeModal);
+$("soundBtn").addEventListener("click",toggleSound);
+$("fullBtn").addEventListener("click",toggleFullscreen);
+$("playAgainBtn").addEventListener("click",resetGame);
+document.addEventListener("keydown",e=>{
+ if(e.key==="Escape"&& !$("resultModal").classList.contains("hidden"))closeModal();
+});
+</script>
+</body>
+</html>
